@@ -1,0 +1,70 @@
+-- Write your MySQL query statement below
+--197. Rising Temperature
+-- Self-join the weather table to compare each day's temperature with the previous day's temperature.
+SELECT 
+    t1.id
+FROM 
+    weather AS t1
+LEFT JOIN 
+    weather AS t_yesterday 
+    ON t1.recordDate = DATE_ADD(t_yesterday.recordDate, INTERVAL 1 DAY) -- Join each record with the record of the previous day
+WHERE 
+    t1.temperature > t_yesterday.temperature;
+
+
+-- 1661. Average Time of Process per Machine
+-- Calculate the average processing time for each machine by finding the difference between 'end' and 'start' timestamps for each process.
+SELECT
+    StartActivity.machine_id,
+    ROUND(
+        -- Calculate the average of (End Timestamp - Start Timestamp)
+        AVG(EndActivity.timestamp - StartActivity.timestamp),
+        3
+    ) AS processing_time
+FROM
+    Activity AS StartActivity
+JOIN
+    Activity AS EndActivity
+ON
+    -- 1. Link the records to the same machine and process. Double join on machine_id and process_id meaning both conditions must be true.
+    StartActivity.machine_id = EndActivity.machine_id
+    AND StartActivity.process_id = EndActivity.process_id
+    
+    -- 2. Ensure we match 'start' records with 'end' records. Because of the self-join 4 possible combinations exist even with both conditions (machine & process id), we only want to pair 'start' with 'end'.
+    AND StartActivity.activity_type = 'start'
+    AND EndActivity.activity_type = 'end'
+GROUP BY
+    StartActivity.machine_id;
+
+
+--1280. Students and Examinations
+-- Use a CROSS JOIN to pair each student with every subject, then a LEFT JOIN to count the number of examinations attended for each student-subject pair.
+SELECT s.student_id, s.student_name, su.subject_name, COUNT(e.student_id) AS attended_exams
+FROM students as s
+    CROSS JOIN subjects AS su -- Create all possible student-subject pairs
+    LEFT JOIN examinations AS e --Left join to include all pairs even if no exams were attended
+        ON s.student_id = e.student_id -- Join on student_id to link examinations
+        AND su.subject_name = e.subject_name -- Join on subject_name to link examinations
+GROUP BY 1,2,3
+ORDER BY 1, 3 
+
+
+--570. Managers with at Least 5 Direct Reports
+-- Self-join the Employee table to count direct reports for each manager and filter those with at least 5 direct reports.
+SELECT
+    -- Select the name of the manager
+    T2.name
+FROM
+    Employee AS T1
+JOIN
+    Employee AS T2
+ON
+    -- T1 represents the direct reports (employees)
+    -- T2 represents the managers (the managerId in T1 must match the id in T2)
+    T1.managerId = T2.id
+GROUP BY
+    T2.id, T2.name -- Group by the manager's unique ID and name
+HAVING
+    -- Filter the groups to include only those where the count of direct reports (T1 rows)
+    -- is five or more.
+    COUNT(T1.id) >= 5;
