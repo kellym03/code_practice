@@ -72,6 +72,8 @@ Hello Lane
 # -h or --help flag in a command will return something of a quick start gfuide for the command
 # ./ represents the current working directory, so you can put this before a script's name and it will execute the script
 # echo $? - In a shell, you can access the exit code of the last program you ran with the question mark variable ($?). For example, if you run a program that exits with a non-zero exit code, you can see what it was with the echo command:
+#kill <PID> - PID stands for "process ID." Every process that's running on your machine has a unique ID. The ps, "process status" command can be used to list the processes running on your machine, and their IDs:
+#ps aux - processing services and aux is all processes
 
 
 
@@ -324,3 +326,86 @@ cat error.txt
 #command for standard error assignment
 worldbanc/private/bin/process_transactions.sh worldbanc/private/transactions/2020.csv 2> /tmp/worldbanc.log
 #In order to run this command I had to navigate to the parent directory of the worldbanc directory. In this case it for ~Documents/GitHub/code_practice
+
+#Standard in
+#"Standard Input", usually called "standard in" or stdin, is the default place where programs read their input. It's just a stream of data that programs can read from as they run.
+
+# execution stops until the user types
+# something (in this case "Lane") and presses enter
+name = input("What is your name? ")
+
+print("Hello,", name)
+# Hello, Lane
+
+# When you run the worldbanc/private/bin/worldbanc.sh program again. Notice that it makes use of stdin to read your name and email. In the code output it uses the read command:
+echo "Please enter your name:"
+read NAME
+
+echo "Please enter your email:"
+read EMAIL
+
+#Piping
+#The | is able to take the standard output from a command and put into the standard input of a command.
+grep -R "Bob" worldbanc/private/transactions --exclude-dir="backups" | wc -l
+#This command searches transactions for "Bob" and then takes that and put it into the word count command with the -l flag which counts the lines and it return the value of 3973 which is the count of lines Bob appeared in
+
+#Interrupt
+#You can use ctrl+c to interrupt a command or quit a command this sends a SIGINT which is designed to end a command
+
+#Kill
+#Sometimes a program is in such a bad state (or is so malicious) that it doesn't respond to the SIGINT, 
+# in which case the best option is to use another shell session (new terminal window) to manually kill the program.
+#Syntax
+kill <PID>
+#PID stands for "process ID." Every process that's running on your machine has a unique ID. The ps, "process status" command can be used to list the processes running on your machine, and their IDs:
+ps aux
+#The "aux" options just mean "show all processes, including those owned by other users, and show extra information about each process."
+#If a process is out of control and not listening you may need to enter the kill command from another terminal to stop the process with the process ID
+#To find the ID I used, ps aux | grep worldbanc/private/bin/malicious.sh
+
+#UNIX philosophy
+#Write programs that do one thing and do it well
+#write programs that work well together
+#Write Programs to Handle Text Streams, Because That Is a Universal Interface
+# This point is more the "how" of the previous point. Programs work together easily when they all use the same interface: text streams. 
+# A text stream is just a sequence of characters that can be read or written sequentially. In other words, a text stream is just text.
+
+#Top
+# The top command is a powerful tool that allows you to see which programs are using the most resources on your computer. It is like task manager for windows but for command line
+# By default, top sorts the processes by CPU usage, with the most CPU-intensive processes at the top. 
+# Another useful resource to sort by is memory (RAM) usage. To sort by memory usage, press M (uppercase) while top is running. 
+# On macOS, you can either start top sorted by memory with top -o mem from the shell, or, while top is running, press o, then type mem and press Enter to sort by memory.
+# to exit top you press q to quit
+
+＃Package Managers
+#Package managers help you with:
+#Downloading software from official sources
+#Installing software
+#Updating software
+#Removing software
+#Managing dependencies
+
+Common paackage managesr include:
+# APT for Ubuntu (this is default)
+# Brew for MacOS (there is no default for MacOS but Homebrew is the most popular)
+#the command for Brew is brew e.g. brew install
+#For your edification, take a look at where your package manager installed nvim on your filesystem. The which command will help: which nvim
+
+#Neovim
+#Don't be fooled, exiting Vim (or Neovim) is one of the greatest hurdles you must overcome as a developer. It's a rite of passage. It's a badge of honor.
+#You must switch between modes in neovim, normal and insert mode
+#Enter insert mode by by pressing i in normal mode
+#Escape insert mode by pressing escape
+# write to a file while in Vim using :w
+# Quit vim by using :q
+
+#Webi
+# Webi lets you install command line tools directly from the web, with no need for a traditional package manager like apt or brew. 
+# You don't need to install Webi itself at all; instead, you just run a shell command that downloads and runs a given tool's official installer script.
+# Installed lsd, LS Deluxe, whihc is like the ls command but with more feature. 
+#curl -sS https://webi.sh/lsd | sh; \
+#source ~/.config/envman/PATH.env
+
+#lsd
+#lsd --tree will print a folder tree
+#lsd -- classic will print things without the colours

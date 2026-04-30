@@ -622,3 +622,125 @@ except Exception as e:
 #0 division
 #index error
 
+#need practice accessing scoping and returning and saving the results of functions in functions
+def process_player_record(player_id):
+    try:
+        result = get_player_record(player_id)
+        return result
+    except IndexError:
+        return "index is too high"
+    except Exception as e:
+        return e
+
+# Don't edit below this line
+
+def get_player_record(player_id):
+    if player_id < 0:
+        raise Exception("negative ids not allowed")
+    players = [
+        {"name": "Slayer", "level": 128},
+        {"name": "Dorgoth", "level": 300},
+        {"name": "Saruman", "level": 4000},
+    ]
+    return players[player_id]
+
+#Exceptions need to match
+try:
+    raise Exception("zero division")
+except ZeroDivisionError as e:
+    print("zero")
+except Exception as e: #This is raising a generic Exception - but again why are we running raise keywords outside of the function? 
+    print("other")
+
+#Exception practice - Purchase bug
+def purchase_item(price, gold_available):
+    if price <= gold_available:
+        return gold_available - price
+    else:
+        raise Exception("not enough gold")
+
+Practice
+#Number Sum
+def number_sum(n):
+    sum = 0
+    for i in range(0,n+1):
+        sum += i
+    return sum
+
+#Find minimum number in list
+def find_min(nums):
+    min_num = float("inf")
+    if len(nums) == 0:
+        return min_num
+    if len(nums) != 0:
+        min_num = nums[0]
+        for num in nums:
+            if num < min_num:
+                min_num = num
+        return min_num
+
+#Remove non integers
+def remove_nonints(nums):
+    int_list = []
+    for i in nums:
+        if type(i) == int:
+            int_list.append(i)
+    return int_list
+
+#Factorial function
+def factorial(num):
+    if num == 0:
+        return 1
+    elif num < 0:
+        return print("must use a positive integer")
+    else:
+        factorial = num
+        for i in range(num, 1, -1):
+            factorial *= i-1
+        return factorial
+    
+#Rectangle area sum
+def area_sum(rectangles):
+    rectangle_areas = []
+    for rectangle in rectangles:
+        rectangle_areas.append(rectangle["height"]*rectangle["width"])
+    rectangle_area_sum = 0
+    for rectangle_area in rectangle_areas:
+        rectangle_area_sum += rectangle_area
+    return rectangle_area_sum
+
+#List divisor
+def divide_list(nums, divisor):
+    list = []
+    for num in nums:
+        list.append(num/divisor)
+    return list
+
+#Joined strings
+def join_strings(strings):
+    joined_string = ""
+    for string in strings:
+        joined_string += string+","
+    joined_string = joined_string[:-1]
+    return joined_string
+
+#Unit tests
+#When you're doing your own testing, you'll usually use a library for writing and running tests. For example, in Python, pytest and unittest are quite popular.
+
+#Some programmers like to work this way; it's called "test-driven development" or "TDD":
+#1. Stub out a function
+#2. Write tests that expect the correct behavior
+#3. Run the tests (they should fail)
+#4. Write the function and keep updating it until it passes the tests
+
+#Fix a failing test
+def avg_luck_boost(luck_boosts):
+    total = 0
+    if len(luck_boosts) == 0:
+        return float(0.0)
+    for boost in luck_boosts:
+        total += boost
+    if total > 0:
+        return total / len(luck_boosts)
+    else:
+        return 0.0
