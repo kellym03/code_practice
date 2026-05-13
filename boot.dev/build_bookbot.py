@@ -47,3 +47,14 @@ from database import connect, db_version
 # Import everything from the `database.py` file into the current file
 from database import *
 
+"""
+When you call dict_list.sort(key=dict_to_sorted_list), this is what happens behind the scenes:
+The Extraction Phase: 
+Python goes through your list and runs every dictionary through your function. 
+It creates a temporary "invisible list" of just the results (the numbers).{'e': 44538} becomes 44538{'t': 29493} becomes 29493{'a': 25894} becomes 25894
+The Sorting Phase: 
+Python now performs the actual math. It compares these plain numbers. 
+It knows that $44538 > 29493$, so it knows the dictionary associated with 44538 should come first.
+The Re-ordering Phase: 
+Python moves the original dictionaries into their new positions based on where their "translated" numbers landed.
+"""

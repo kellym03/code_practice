@@ -1,0 +1,2 @@
+#Learn git
+#command syntax
