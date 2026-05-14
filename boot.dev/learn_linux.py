@@ -74,6 +74,7 @@ Hello Lane
 # echo $? - In a shell, you can access the exit code of the last program you ran with the question mark variable ($?). For example, if you run a program that exits with a non-zero exit code, you can see what it was with the echo command:
 #kill <PID> - PID stands for "process ID." Every process that's running on your machine has a unique ID. The ps, "process status" command can be used to list the processes running on your machine, and their IDs:
 #ps aux - processing services and aux is all processes
+#edit a text file in command line - nano filename.md
 
 
 
