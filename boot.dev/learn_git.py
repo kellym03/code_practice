@@ -287,7 +287,7 @@ git commit --amend --no-edit
 #A linear history is generally easier to read, understand, and work with. 
 # Some teams enforce the usage of one or the other on their main branch, but generally speaking, you'll be able to do whatever you want with your own branches.
 
-git rebase main
+git rebase main 
 
 #Warning
 #You should never rebase a public branch (like main) onto anything else. 
@@ -309,3 +309,166 @@ git reset --hard COMMITHASH
 #When it comes to Git (the CLI tool), there really isn't a "central" repo. 
 # GitHub is just someone else's repo. Only by convention and convenience have we, as developers, started to use GitHub as a "source of truth" for our code.
 
+#Adding the remote
+#In git, another repo is called a "remote." 
+# The standard convention is that when you're treating the remote as the "authoritative source of truth" (such as GitHub) you would name it the "origin".
+#By "authoritative source of truth" we mean that it's the one you and your team treat as the "true" repo. 
+# It's the one that contains the most up-to-date version of the accepted code.
+
+git remote add <name> <uri>
+
+#In the assignment i set up the new repo webflyx-local with the webflyx repo as the remote origin for the new "local" one. The command that was used this repo is the below
+git remote add origin ../webflyx #it used a relative pathing for the uri of the repo
+
+#Fetch
+#check the contents of the new repo with 
+find .git/objects
+
+#to download copies of the content in the remote assigned repo you use
+git fetch
+
+#Log remote
+#The git log command isn't only useful for your local repo. You can log the commits of a remote repo as well!
+git log [<remote>/<branch>]
+
+#For example, if you wanted to see the commits of a branch named primeagen from a remote named origin you would run:
+git log origin/primeagen
+
+#If you want to see the log of a specific branhc you could also use
+git --no-pager log origin/update_dune --oneline
+
+#Remote Merge
+#Just as we merged branches within a single local repo, we can also merge branches between local and remote repos.
+git merge [<remote>/<branch>]
+
+#For example, if you wanted to merge the primeagen branch of the remote origin into your local main branch, you would run this inside the local repo while on the main branch:
+git merge origin/primeagen
+
+#github remote repo
+#Add a remote repo on github for the local repo to push and pull from
+git remote add origin https://github.com/your-username/repo-name.git
+
+#git push
+git push origin main
+
+#can push a new branch you made locally to the remote repo with something like 
+git push origin <new branch name>
+
+#ensure git will merge on a pull
+git config set pull.rebase false
+
+#Pull requests
+#When you push locally to a remote origin it will create a pull request sothat the maintainer of the repo can manage the incoming push request from the local repo
+#Pull requests allow team members to see what changes are being proposed and to discuss them before they are merged into the main codebase.
+
+#Prime's Workflow
+#While on the topic of pull requests, I want to share a note on my simple workflow. 90% of the time, you're only using a handful of git commands to get your coding work done.
+
+#Keep Stuff on GitHub
+#I keep all my serious projects on GitHub. That way if my computer explodes, I have a backup, and if I'm ever on another computer, I can just clone the repo and get back to work.
+
+#Rebase vs. Merge
+#I've configured Git to rebase by default on pull, rather than merge so I keep a linear history. If you want to do the same, you can add this to your global Git config:
+
+git config set --global pull.rebase true
+
+#Prime's Solo Workflow
+#When I'm working by myself, I usually stick to a single branch, main. I mostly use Git on solo projects to keep a backup remotely and to keep a history of my changes. I only rarely use separate branches.
+
+#Make changes to files
+git add . (or git add <files> if I only want to add specific files)
+git commit -m "a message describing the changes"
+git push origin main
+#It really is that simple for most solo work. git log, git reset, and some others are, of course, useful from time to time, but the above is the core of what I do day-to-day.
+
+#My Team Workflow
+#When you're working with a team, Git gets a bit more involved (and we'll cover more of this in part 2 of this course). Here's what I do:
+
+#Update my local main branch with git pull origin main
+#Checkout a new branch for the changes I want to make with git switch -c <branchname>
+#Make changes to files
+git add .
+git commit -m "a message describing the changes"
+git push origin <branchname> (I push to the new branch name, not main)
+#Open a pull request on GitHub to merge my changes into main
+#Ask a team member to review my pull request
+#Once approved, click the "Merge" button on GitHub to merge my changes into main
+#Delete my feature branch, and repeat with a new branch for the next set of changes
+
+#Git Ignore
+.gitignore
+#A problem arises when we want to put files in our project's directory, but we don't want to track them with Git. 
+# A .gitignore file solves this. For example, if you work with Python, you probably want to ignore automatically generated files like .pyc and __pycache__. 
+# If you are building a server, you probably want to ignore .env files that might hold private keys. 
+# If you (I'm sorry) work with JavaScript, you might want to ignore the node_modules directory.
+
+#Here's example contents of a .gitignore file, which exists at the root of a repo:
+
+node_modules
+.env
+
+#This will ignore every path containing node_modules as a "section" (directory name or file name). It ignores:
+
+node_modules/code.js
+src/node_modules/code.js
+src/node_modules
+#It does not ignore:
+
+src/node_modules_2/code.js
+env/node_modules_3
+src/node_modules.js
+#This will also ignore the .env file preventing you from committing sensitive environment variables (like API keys, DB credentials, etc.) ...cause that would be bad.
+
+#work out what the below does
+git show --name-only --pretty=""
+
+#Patterns
+#It would be rough if .gitignore files only accepted exact filepath section names. Luckily, they don't!
+
+#Let's go over some of the most common patterns.
+
+#Wildcards
+#The * character matches any number of characters except for a slash (/). For example, to ignore all .txt files, you could use the following pattern:
+
+#*.txt
+
+#This would ignore files like /princess_diaries.txt and /contacts/your_mom.txt since they're both .txt files.
+
+#Rooted Patterns
+#Patterns starting with a / are anchored to the directory containing the .gitignore file. For example, this would ignore a main.py in the root directory, but not in any subdirectories:
+
+#/main.py
+
+#This ignores /main.py but not /src/main.py since /src is a subdirectory.
+
+#Negation
+#You can negate a pattern by prefixing it with an exclamation mark (!). For example, to ignore all .txt files except for important.txt, you could use the following pattern:
+
+#*.txt
+#!/important.txt
+
+#This would not ignore /important.txt, but would ignore /self_affirmations/important.txt.
+
+#Comments
+#You can add comments to your .gitignore file by starting a line with a #. For example:
+
+# Ignore all .txt files
+#*.txt
+
+#Comments are especially helpful when doing something unconventional or complex, especially when collaborating.
+
+#Order Matters
+#The order of patterns in a .gitignore file determines their effect, and patterns can override each other. For example:
+
+#temp/*
+#!temp/instructions.md
+
+#Everything in the temp/ directory would be ignored except for instructions.md. If the order were reversed, instructions.md would be ignored.
+
+#What to Ignore
+#We've talked about how to ignore files, but the deeper question is what should you ignore? Here are some rules of thumb for coding projects:
+
+#Ignore things that can be generated (e.g. compiled code, minified files, etc.)
+#Ignore dependencies (e.g. node_modules, venv, packages, etc.)
+#Ignore things that are personal or specific to how you like to work (e.g. editor settings)
+#Ignore things that are sensitive or dangerous (e.g. .env files, passwords, API keys, etc.)
