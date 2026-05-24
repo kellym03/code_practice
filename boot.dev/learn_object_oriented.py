@@ -424,3 +424,205 @@ class Archer(Hero):
             self.__num_arrows -= 1
             target.take_damage(10)
         
+#Wide not deep
+#Why Wide Not Deep?
+#A child class is a strict subset of its parent class. 
+# In a deep tree, that means the children need to be perfect members of all the parent class "types". That just doesn't happen very often. 
+# It's more likely that you'll have a base class that simply has many child classes that are slightly different variations of the base. 
+# They're all "siblings" of each other.
+
+#List comprehension in the for loop
+def main():
+    dragons = [
+        Dragon("Green Dragon", 0, 0, 1),
+        Dragon("Red Dragon", 2, 2, 2),
+        Dragon("Blue Dragon", 4, 3, 3),
+        Dragon("Black Dragon", 5, -1, 4),
+    ]
+
+    for dragon in dragons:
+        print(f"{dragon.name} is at {dragon.pos_x}/{dragon.pos_y}")
+    for dragon in dragons:
+        opponents = [d for d in dragons if d != dragon] #list comprehension, returns d if logic passes 
+        dragon.breathe_fire(3, 3, opponents)
+
+#Polymorphism
+#Polymorphism is the ability of a variable, function or object to take on multiple forms.
+class Creature():
+    def move(self):
+        print("the creature moves")
+
+class Dragon(Creature):
+    def move(self):
+        print("the dragon flies")
+
+class Kraken(Creature):
+    def move(self):
+        print("the kraken swims")
+
+for creature in [Creature(), Dragon(), Kraken()]:
+    creature.move()
+# prints:
+# the creature moves
+# the dragon flies
+# the kraken swims
+
+#Because all three classes have a .move() method, we can shove the objects into a single list, and call the same method on each of them, even though the implementation (method body) is different.
+class Rectangle:
+    def __init__(self, x1, y1, x2, y2):
+        self.__x1 = x1 #If it is a private property you need to write getter methods to access them
+        self.__y1 = y1
+        self.__x2 = x2
+        self.__y2 = y2
+
+#Overlapping rectangles
+#This was hard... I can see why being able to visualise can help
+#The below illustrates how there are truthy and falsy values where if there is a true and a false result separated by an OR operator it will evaluate to true
+class Rectangle:
+    def overlaps(self, rect):
+        # They are only separated horizontally if there is an empty gap between them
+        separated_x = self.get_right_x() < rect.get_left_x() or self.get_left_x() > rect.get_right_x()
+        
+        # They are only separated vertically if there is an empty gap between them
+        separated_y = self.get_top_y() < rect.get_bottom_y() or self.get_bottom_y() > rect.get_top_y()
+        
+        # If there is no gap keeping them apart, they are either intersecting or touching!
+        return not (separated_x or separated_y)
+
+    # don't touch below this line
+
+    def __init__(self, x1, y1, x2, y2):
+        self.__x1 = x1
+        self.__y1 = y1
+        self.__x2 = x2
+        self.__y2 = y2
+
+    def get_left_x(self):
+        return min(self.__x1, self.__x2)
+
+    def get_right_x(self):
+        return max(self.__x1, self.__x2)
+
+    def get_top_y(self):
+        return max(self.__y1, self.__y2)
+
+    def get_bottom_y(self):
+        return min(self.__y1, self.__y2)
+
+    def __repr__(self):
+        return f"Rectangle({self.__x1}, {self.__y1}, {self.__x2}, {self.__y2})"
+
+#Function signature
+#What Is a Function Signature
+#A function signature (or method signature) includes the name, inputs, and outputs of a function or method. 
+# For example, hit_by_fire in the Human and Archer classes have identical signatures.
+class Human:
+    def hit_by_fire(self): #name and input
+        self.health -= 5
+        return self.health #output
+
+class Archer:
+    def hit_by_fire(self):
+        self.health -= 10
+        return self.health
+    
+#Operator Overloading
+#Another kind of built-in polymorphism in Python is the ability to override how an operator works. 
+# For example, the + operator works for built-in types like integers and strings.
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+p1 = Point(4, 5)
+p2 = Point(2, 3)
+p3 = p1 + p2
+# TypeError: unsupported operand type(s) for +: 'Point' and 'Point'
+
+#But we can add our own support! Python uses special methods with double underscores, sometimes called "dunder methods", to hook into built-in behaviors. 
+# You've already used __init__ to customize how objects are created. 
+# If we create an __add__(self, other) method on our class, the Python interpreter will use it when instances of the class are being added with the + operator. 
+# The name of the second parameter (other in this example) is just a convention - you can use any valid parameter name. Here's an example:
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __add__(self, other):
+        x = self.x + other.x
+        y = self.y + other.y
+        return Point(x, y)
+
+p1 = Point(4, 5)
+p2 = Point(2, 3)
+p3 = p1 + p2
+# p3 is (6, 8)
+
+#It is hard coded in the language data model so that __add__ is +
+
+#Operator Overload Review
+#As we discussed in the last assignment, operator overloading is the practice of defining custom behavior for standard Python operators. Here's a list of how the operators translate into method names.
+
+"""
+Operation	        Operator	       Method
+Addition	        +	                __add__
+Subtraction	        -	                __sub__
+Multiplication	    *	                __mul__
+Power	            **	                __pow__
+Division	        /	                __truediv__
+Floor Division	    //	                __floordiv__
+Remainder (modulo)	%	                __mod__
+Bitwise Left Shift	<<	                __lshift__
+Bitwise Right Shift	>>	                __rshift__
+Bitwise AND	        &	                __and__
+Bitwise OR	        |	                __or__
+Bitwise XOR	        ^	                __xor__
+Bitwise NOT	        ~	                __invert__
+"""
+
+Overriding Built-In Methods
+Last but not least, let's take a look at some of the built-in methods we can override in Python. While there isn't a default behavior for the arithmetic operators like we just saw, there is a default behavior for printing a class instance:
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+p1 = Point(4, 5)
+print(p1)
+# <Point object at 0xa0acf8>
+
+#That's not super useful! We probably want to see the fields!
+
+#Let's teach our Point class to print itself. The __str__ method (short for "string") lets us do just that. 
+# It takes no inputs but returns a string that will be printed to the console when someone passes an instance of the class to Python's print() function. - hardcoded in
+
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __str__(self):
+        return f"({self.x},{self.y})"
+
+p1 = Point(4, 5)
+print(p1)
+# prints "(4,5)"    
+
+#Boolean Logic operators also work on an index tie breaker basis. For example, below the suit_index will be used as a tie breaker if rank_index is not met
+class Card:
+    def __init__(self, rank, suit):
+        self.rank = rank
+        self.suit = suit
+        self.rank_index = RANKS.index(self.rank)
+        self.suit_index = SUITS.index(self.suit)
+
+    def __eq__(self, other):
+        # Compares both values as a pair
+        return (self.rank_index, self.suit_index) == (other.rank_index, other.suit_index)
+
+    def __lt__(self, other):
+        # Python automatically uses suit_index as a tie-breaker if rank_index matches!
+        return (self.rank_index, self.suit_index) < (other.rank_index, other.suit_index)
+
+    def __gt__(self, other):
+        return (self.rank_index, self.suit_index) > (other.rank_index, other.suit_index)
