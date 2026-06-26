@@ -506,3 +506,55 @@ def format_dates(datestamp: str):
     date_split = datestamp.split("-")
     correct_format = [date_split[2],date_split[0],date_split[1]] #split and rearrange the datestamp from "MM-DD-YYYY" to "YYYY-MM-DD" so that it can be sorted correctly by year, then month, then day.
     return correct_format
+
+#Recursion
+#A recursive function is just a function that calls itself.
+#The most important concepts to grasp in recursion are the base case and that everything unwinds backwards from the base case up to your passed case (the parameter).
+#For example, the below is a recursive function of a factorial
+def factorial_r(x: int) -> int:
+    # 1. Base Case: Stop the countdown when we hit 1 or 0
+    if x <= 1:
+        return 1
+        
+    # 2. Recursive Step: Multiply current x by the factorial of (x - 1)
+    return x * factorial_r(x - 1)
+
+# If you want the argument to be 3! therefore the result would be 6 meaning it multiplies 3 * 2 * 1. Because you need to multiply all the numbers from the argument down to 1.
+# How recursion works is that it temporarily suspends the current function call and creates a new function call with the new argument (x - 1 in this case). 
+# This continues until it reaches the base case, at which point it starts returning values back up the chain of suspended function calls, multiplying them together as it goes back up.
+# To mentally square this, you need to think what is the base case and work backwards, which here would be 1 * 2 * 3 = 6 as it returns back up the chain. 
+
+#Zipmap
+def zipmap(keys: list[str], values: list[float]) -> dict[str, float]:
+    # 1. Base Case: If either list runs out of elements, stop and return empty dict
+    if len(keys) == 0 or len(values) == 0:
+        return {}
+        
+    # 2. Recursive Step: Create a dictionary of the first pair, 
+    #    then use the '|' operator to merge it with the recursive result of the rest
+    return {keys[0]: values[0]} | zipmap(keys[1:], values[1:])
+
+# Let's Trace zipmap(["A", "B"], [1, 2]) 
+# Step-by-StepWatch how the stack frames build up and resolve:
+# Call 1: Receives ["A", "B"] and [1, 2].
+    # Prepares: {"A": 1} | zipmap(["B"], [2]) (PAUSED)
+# Call 2: Receives ["B"] and [2].
+    # Prepares: {"B": 2} | zipmap([], []) (PAUSED)
+# Call 3 (Base Case): Receives [] and [].len(keys) == 0 is true, so it returns {}.
+# The Unwinding Phase:
+# Call 2 finishes: {"B": 2} | {} $ --> results in {"B": 2}.
+# Call 1 finishes: {"A": 1} | {"B": 2} --> results in {"A": 1, "B": 2}.
+
+#One of the key operators is the pipe operator (|) which merges two dictionaries together.
+#In Python, the pipe symbol (|) is known as the Dictionary Merge Operator. It was introduced in Python 3.9 to solve a long-standing headache: merging two dictionaries together cleanly without writing messy loop code or modifying your data in place.
+#Example below:
+studio_a = {"The Grand Budapest Hotel": 8.1}
+studio_b = {"Fantastic Mr. Fox": 7.9}
+
+# Combine them cleanly
+all_movies = studio_a | studio_b
+
+print(all_movies)
+# Output: {'The Grand Budapest Hotel': 8.1, 'Fantastic Mr. Fox': 7.9}
+
+#In a tiebreaker scenario where two items have the same key value, the item on the right side of the pipe wins (it is later in the call and therefore overrides it)
