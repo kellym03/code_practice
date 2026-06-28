@@ -74,4 +74,55 @@ CREATE TABLE employees (
     REFERENCES departments(id)
 );
 
-test
+#SQL Functions
+IIF works like a ternary function and creates an additional column at the end of a table based on the arguments.
+SELECT *,
+  IIF (was_successful = TRUE, 'No action required', 'Perform an audit') AS audit
+FROM transactions;
+
+##BETWEEN
+SELECT product_name, quantity
+FROM products
+WHERE quantity NOT BETWEEN 20 AND 100;
+
+## DISTINCT
+SELECT DISTINCT country_code
+FROM users;
+
+## IN
+Another variation to the WHERE clause we can utilize is the IN operator. IN returns true or false if the first operand matches any of the values in the second operand. The IN operator is a shorthand for multiple OR conditions.
+
+SELECT product_name, shipment_status
+FROM products
+WHERE shipment_status IN ('shipped', 'preparing', 'out of stock');
+
+SELECT product_name, shipment_status
+FROM products
+WHERE shipment_status = 'shipped'
+  OR shipment_status = 'preparing'
+  OR shipment_status = 'out of stock';
+
+#Like
+Sometimes we don't have the luxury of knowing exactly what it is we need to query. Have you ever wanted to look up a song or a video but you only remember part of the name? SQL offers us an option for when we're in situations LIKE this.
+
+The LIKE keyword allows for the use of the % and _ wildcard operators. Let's focus on % first.
+
+##% Operator
+The % operator will match zero or more characters. We can use this operator within our query string to find more than just exact matches, depending on where we place it.
+
+SELECT * FROM products
+WHERE product_name LIKE 'banana%';
+
+SELECT * FROM products
+WHERE product_name LIKE '%banana%';
+
+##Underscore Operator
+As discussed, the % wildcard operator matches zero or more characters. The _ wildcard operator, on the other hand, matches only a single character.
+
+SELECT * FROM products
+WHERE product_name LIKE '__oot';
+
+#Practice
+SELECT *,
+  IIF ((age > 55 OR country_code = "CA"), 10, 0) AS discount_percent
+FROM users;
