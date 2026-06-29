@@ -126,3 +126,27 @@ WHERE product_name LIKE '__oot';
 SELECT *,
   IIF ((age > 55 OR country_code = "CA"), 10, 0) AS discount_percent
 FROM users;
+
+#ORDER BY & LIMIT
+ORDER BY must come before LIMIT
+
+SELECT * FROM transactions
+WHERE amount BETWEEN 10 AND 80
+ORDER BY amount DESC
+LIMIT 4;
+
+#Aggregations
+These are the functions that compact the results of a sql query into an aggregate figure
+
+List
+COUNT()
+SUM()
+MAX() -- select the max value in the field
+MIN()
+
+GROUP BY 
+
+SELECT user_id, SUM(amount) AS "balance"
+FROM transactions
+WHERE was_successful = TRUE
+GROUP BY user_id;
