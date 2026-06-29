@@ -72,6 +72,7 @@ CONSTRAINT fk_departments
 FOREIGN KEY (department_id)
 REFERENCES departments(id)
 );
+<<<<<<< HEAD
 
 # Relational vs Non-relation databases
 
@@ -431,3 +432,5 @@ Every table should always have a unique identifier (primary key)
 Avoid duplicate data
 Avoid storing data that is completely dependent on other data. Instead, compute it on the fly when you need it.
 Keep your schema as simple as you can. Optimize for a normalized database first. Only denormalize for speed's sake when you start to run into performance problems.
+=======
+>>>>>>> e3084908ad340473eda278aa3abd9100e2637128
