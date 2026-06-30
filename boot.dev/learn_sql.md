@@ -579,3 +579,46 @@ WHERE support_tickets.issue_type != "Account Access"
 GROUP BY users.id
 HAVING support_ticket_count > 1
 ORDER BY support_ticket_count DESC;
+
+# Performance
+## SQL Indexes
+If you can remember back to the data structures course, most database indexes are just binary trees or B-trees! The binary tree can be stored in RAM as well as on disk, and it makes it easy to look up the location of an entire row.
+
+PRIMARY KEY columns are indexed by default, ensuring you can look up a row by its id very quickly. However, if you have other columns that you want to be able to do quick lookups on, you'll need to index them.
+
+### Create index
+CREATE INDEX index_name ON table_name (column_name);
+CREATE INDEX email_idx ON users (email);
+
+It's fairly common to name an index after the column it's created on with a suffix of _idx.
+
+By indexing a column, we create a new in-memory structure, usually a B-tree, where the values in the indexed column are sorted into the tree to keep lookups fast. In terms of Big-O complexity, a B-tree index ensures that lookups are O(log(n)).
+
+Indexes slow down write speed.
+
+## Multi-column index
+CREATE INDEX first_name_last_name_age_idx
+  ON users (first_name, last_name, age);
+
+CREATE INDEX user_id_recipient_id_idx
+  ON transactions (user_id, recipient_id);
+
+### Create a multi-column index
+A multi-column index is sorted by the first column first, the second column next, and so forth. A lookup on only the first column in a multi-column index gets almost all of the performance improvements that it would get from its own single-column index. However, lookups on only the second or third column will have very degraded performance.
+Rule of Thumb
+
+Unless you have specific reasons to do something special, only add multi-column indexes if you're doing frequent lookups on a specific combination of columns.
+
+## Denormalization
+We left you with a cliffhanger in the "normalization" chapter. As it turns out, data integrity and deduplication come at a cost, and that cost is usually speed.
+
+Joining tables together, using subqueries, performing aggregations, and running post-hoc calculations take time. At very large scales these advanced techniques can actually become a huge performance toll on an application – sometimes grinding the database server to a halt.
+
+Storing duplicate information can drastically speed up an application that needs to look it up in different ways. For example, if you store a user's country information right on their user record, no expensive join is required to load their profile page!
+
+## SQL Injection
+You need to be aware of SQL injection attacks, but to be honest, the solution these days is simply to use a modern SQL library that sanitizes inputs. We don't often need to sanitize inputs by hand at the application level anymore.
+
+For example, the Go standard library's SQL package automatically protects against SQL injection attacks if you use it properly.
+
+In short, don't interpolate user input into raw query strings yourself – make sure your database library has a way to sanitize inputs, and pass user-provided values into that.
