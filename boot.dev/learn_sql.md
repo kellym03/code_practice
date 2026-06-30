@@ -508,3 +508,74 @@ Every table should always have a unique identifier (primary key)
 Avoid duplicate data
 Avoid storing data that is completely dependent on other data. Instead, compute it on the fly when you need it.
 Keep your schema as simple as you can. Optimize for a normalized database first. Only denormalize for speed's sake when you start to run into performance problems.
+
+# Joins
+## INNER JOIN
+SELECT *
+FROM users
+INNER JOIN countries 
+  ON users.country_code = countries.country_code;
+
+Will only join tables rows where there is a valid value from both the left and right table 
+
+## Namespacing on tables
+SELECT students.name, classes.name --can specify the table
+FROM students
+INNER JOIN classes ON classes.class_id = students.class_id;
+
+## LEFT JOIN
+naming trick to speed things up
+SELECT e.name, d.name
+FROM employees e
+LEFT JOIN departments d
+  ON e.department_id = d.id;
+
+Assignment code
+SELECT users.name AS 'name', 
+  SUM(transactions.amount) AS 'transaction_sum', 
+  COUNT(transactions.id) AS 'transaction_count'
+FROM users
+LEFT JOIN transactions
+  ON users.id = transactions.user_id
+GROUP BY users.id
+ORDER BY transaction_sum DESC;
+
+## RIGHT JOIN
+The opposite of a LEFT JOIN
+
+## FULL JOIN
+Need all the results of every row from both tables 
+
+## Multiple Joins
+You can execute multiple joins to join together multiple tables however be aware of join order execution
+SELECT *
+FROM employees
+LEFT JOIN departments
+  ON employees.department_id = departments.id
+INNER JOIN regions
+  ON departments.region_id = regions.id;
+
+Practice
+SELECT users.id, 
+  users.name, 
+  users.age, 
+  users.username, 
+  countries.name AS 'country_name',
+  SUM(transactions.amount) AS 'balance'
+FROM users
+LEFT JOIN transactions
+  ON users.id = transactions.user_id 
+  AND transactions.was_successful = TRUE
+LEFT JOIN countries
+  ON users.country_code = countries.country_code
+WHERE users.id = 6
+GROUP BY users.id;
+
+Practice
+SELECT users.name, users.username, COUNT(support_tickets.id) AS 'support_ticket_count'
+FROM users
+INNER JOIN support_tickets ON users.id = support_tickets.user_id
+WHERE support_tickets.issue_type != "Account Access"
+GROUP BY users.id
+HAVING support_ticket_count > 1
+ORDER BY support_ticket_count DESC;
