@@ -558,3 +558,117 @@ print(all_movies)
 # Output: {'The Grand Budapest Hotel': 8.1, 'Fantastic Mr. Fox': 7.9}
 
 #In a tiebreaker scenario where two items have the same key value, the item on the right side of the pipe wins (it is later in the call and therefore overrides it)
+
+#Nested sum
+#This would be used for something like a directory of files where you want to get the total size of all files in the directory and subdirectories. You would use recursion to go through each directory and subdirectory, and sum the sizes of all files.
+
+root
+├── scripts.txt (5 bytes)
+├── characters (dir)
+│   ├── zuko.txt (6 bytes)
+│   └── aang.txt (7 bytes)
+└── seasons (dir)
+    ├── season1 (dir)
+    │   ├── the_avatar_returns.docx (8 bytes)
+    │   └── the_southern_air_temple.docx (9 bytes)
+    └── season2_notes.txt (10 bytes)
+
+In code this would be something like:
+root: list[int | list] = [
+    5,
+    [6, 7],
+    [[8, 9], 10]
+]
+print(sum_nested_list(root))
+# 45
+
+def sum_nested_list(lst: list[int | list]) -> int:
+    size = 0
+    for item in lst:
+        if isinstance(item, int):
+            size += item
+        else:
+            # Capture the returned value from the inner list!
+            size += sum_nested_list(item) #Needed to add the returned value from the inner list to the size variable, otherwise it would just call the function and not add the result to the total size.   
+    return size
+
+#I most often use recursion on tree-like problems (file systems, nested dictionaries, etc.). If I'm just iterating over a one-dimensional list, then a loop (gasp...) is typically simpler, even if it's not as "pure" in the academic sense.
+
+#Recursion on a tree structure
+#.extend() keeps the list flat, while .append() would create a nested list.
+#Visualizing Append vs Extend
+
+#Imagine a directory has two files inside it: ['/dir/a.txt', '/dir/b.txt'].
+
+#    If you use .append(): your list becomes ['existing_files', ['/dir/a.txt', '/dir/b.txt']] ❌
+
+#    If you use .extend(): your list becomes ['existing_files', '/dir/a.txt', '/dir/b.txt'] ✓
+
+def list_files(
+    parent_directory: dict[str, dict | None], current_filepath: str = ""
+) -> list[str]:
+    # 1. Create an empty list to store the file paths
+    lst = []
+    
+    # 2. Iterate through the keys
+    for key in parent_directory:
+        # 2a. Create a new file path by concatenating / and key to current_filepath
+        path = f"{current_filepath}/{key}"
+        
+        # 3. If the value is None, it's a file. Append it!
+        if parent_directory[key] is None:
+            lst.append(path)
+        
+        # 4 & 5. Otherwise, it's a folder. Recurse and Extend!
+        else:
+            child_paths = list_files(parent_directory[key], path)
+            lst.extend(child_paths) # Merges the lists together smoothly
+            
+    # 6. Return the flat list of file paths
+    return lst
+
+#Dangers of recursion
+#Recursion is great because it's simple and elegant (simple != easy). It's often the most straightforward way to solve a problem. But there are some dangers to be aware of:
+
+#1. Stack overflow: Each function call requires a bit of memory. So, if you recurse too deeply, you can run out of "stack" memory, which will crash your program. (This is what the famous website is named after.)
+#2. If you don't have a solid base case, you can end up in an infinite loop (which will likely lead to a stack overflow).
+#3. Especially in a language like Python, recursion is often slower than a for loop because each function call requires some memory. Tail call optimization can help with this, but Python doesn't support it.
+
+#Recursion practice
+def find_longest_word(document: str, longest_word: str = "") -> str:
+    if len(document) == 0:
+        return longest_word
+    else:
+        split_doc = document.split(" ",maxsplit=1)
+        first_word = split_doc[0]
+        if len(first_word) > len(longest_word):
+            longest_word = first_word
+        if len(split_doc) == 1:
+            return longest_word
+        if len(split_doc) > 1:
+            rest_of_string = split_doc[1]
+            return find_longest_word(rest_of_string, longest_word) #Don't forget to return a value at the end of every Python function.
+
+
+def count_nested_levels(
+    nested_documents: dict[int, dict], target_document_id: int, level: int = 1
+) -> int:
+    # First pass: Check if the target exists right here at the current level
+    for doc_id in nested_documents:
+        if doc_id == target_document_id:
+            return level
+            
+    # Second pass: If it wasn't at this level, dig into the child dictionaries
+    for doc_id in nested_documents:
+        child_dict = nested_documents[doc_id]
+        
+        # Search deeper. Going down one level means we pass level + 1
+        result = count_nested_levels(child_dict, target_document_id, level + 1)
+        
+        # If the recursive call actually found the ID somewhere below, return that champion!
+        if result != -1:
+            return result
+            
+    # If we looked everywhere at this level and all child levels and found nothing
+    return -1
+
