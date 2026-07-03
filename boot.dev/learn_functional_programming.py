@@ -672,3 +672,75 @@ def count_nested_levels(
     # If we looked everywhere at this level and all child levels and found nothing
     return -1
 
+#Function transformations
+#"Function transformation" is just a concise way to describe a specific type of higher-order function. It's when a function takes a function (or functions) as input and returns a new function.
+from collections.abc import Callable
+
+def multiply(x: int, y: int) -> int:
+    return x * y
+
+def add(x: int, y: int) -> int:
+    return x + y
+
+# self_math is a higher-order function
+# input: a function that takes two arguments and returns a value
+# output: a new function that takes one argument and returns a value
+def self_math(math_func: Callable[[int, int], int]) -> Callable[[int], int]:
+    def inner_func(x: int) -> int:
+        return math_func(x, x)
+    return inner_func
+
+square_func: Callable[[int], int] = self_math(multiply)
+
+#This is essentially the below:
+#def inner_func(x):
+#    return multiply(x, x)
+
+double_func: Callable[[int], int] = self_math(add)
+
+print(square_func(5))
+# prints 25
+
+print(double_func(5))
+# prints 10
+
+#The self_math function takes a function that operates on two different parameters (e.g. multiply or add) and returns a new function that operates on one parameter twice (e.g. square or double).
+
+#Practice
+from collections.abc import Callable
+
+
+def doc_format_checker_and_converter(
+    conversion_function: Callable[[str], str], valid_formats: list[str]
+) -> Callable[[str, str], str]:
+    
+    def inner_func(filename: str, content: str) -> str:
+        split_filename = filename.split(".")
+        file_extension = split_filename[1]
+        
+        if file_extension in valid_formats:
+            return conversion_function(content)
+        else:
+            raise ValueError("invalid file format")
+            
+    return inner_func  # Hand back the complete inner function blueprint
+
+def capitalize_content(content: str) -> str:
+    return content.upper()
+
+
+def reverse_content(content: str) -> str:
+    return content[::-1]
+
+#Don't forget, the purpose of the outer function is return the inner function. 
+# A useful metaphor is calling the outer function the factory function and the inner function the newly minted tool the factory has produced.
+
+#How the above works in the real world
+# 1. We run the factory. It hands back 'inner_func', which we save into a variable.
+my_custom_converter = doc_format_checker_and_converter(capitalize_content, ["txt"])
+# ^ You can see in the above the outer function is called with the capitalize_content function and a list of valid formats (in this case, just "txt"). 
+# This will then allow you to use the inner function below 
+
+# 2. We use the custom tool we were handed
+result = my_custom_converter("essay.txt", "hello world")
+print(result) # Output: HELLO WORLD
