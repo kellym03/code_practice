@@ -744,3 +744,170 @@ my_custom_converter = doc_format_checker_and_converter(capitalize_content, ["txt
 # 2. We use the custom tool we were handed
 result = my_custom_converter("essay.txt", "hello world")
 print(result) # Output: HELLO WORLD
+
+#Currying
+
+The objective was to convert a function that takes multiple arguments into a series of functions that each take a single argument. This is useful for creating specialized functions from more general ones.
+#Pre-converted
+def converted_font_size(font_size: int, doc_type:str) -> int:
+    if doc_type == "txt":
+        return font_size
+    if doc_type == "md":
+        return font_size * 2
+    if doc_type == "docx":
+        return font_size * 3
+    raise ValueError("invalid doc type")
+
+#Converted
+from collections.abc import Callable
+
+def converted_font_size(font_size: int) -> Callable[[str], int]:
+    def inner_func(doc_type: str):
+        if doc_type == "txt":
+            return font_size
+        if doc_type == "md":
+            return font_size * 2
+        if doc_type == "docx":
+            return font_size * 3
+        raise ValueError("invalid doc type")
+    return inner_func
+
+#Why would we ever want to do currying and make a function that is ostensibly more complicated? 
+# Currying can be used to change a function's signature to make it conform to a specific shape. For example:
+
+def colorize(converter: Callable[[str], str], doc: str) -> None:
+    # ...
+    converter(doc)
+    # ...
+
+#The colorize function accepts a function called converter as input, and at some point during its execution, it calls converter with a single argument. 
+# That means that it expects converter to accept exactly one argument. So, if I have a conversion function like this:
+def markdown_to_html(doc: str, asterisk_style: str) -> str:
+    # ...
+
+#I can't pass markdown_to_html to colorize because markdown_to_html wants two arguments. 
+# To solve this problem, I can curry markdown_to_html into a function that takes a single argument:
+
+def markdown_to_html(asterisk_style: str) -> Callable[[str], str]:
+    def asterisk_md_to_html(doc: str) -> str:
+        # do stuff with doc and asterisk_style...
+
+    return asterisk_md_to_html
+
+markdown_to_html_italic: Callable[[str], str] = markdown_to_html("italic")
+colorize(markdown_to_html_italic, doc)
+
+#Below is a really good example of factory functions, currying and how the outer functions serves the purpose of returning the inner function:
+from collections.abc import Callable
+
+def box_volume(length: int) -> Callable[[int], Callable[[int], int]]: #take note that the outer function's type hint features two callables as the expected returned output
+    def box_volume_with_len(width: int) -> Callable[[int], int]:
+        def box_volume_with_len_width(height: int) -> int:
+            return length * width * height
+        return box_volume_with_len_width
+    return box_volume_with_len
+
+#Currying practice
+from collections.abc import Callable
+
+
+def create_markdown_image(alt_text: str) -> Callable[[str], Callable[..., str]]:
+    a_txt = f"![{alt_text}]"
+    def with_url(url:str) -> Callable[[str], str]:
+        repl_op_br_url = url.replace("(", "%28")
+        repl_cl_br_url = repl_op_br_url.replace(")", "%29")
+        b_txt = f"{a_txt}({repl_cl_br_url})"
+        def with_title(title=None):
+            if title != None:
+                title_quotes = f'"{title}"'
+                return f"{a_txt}({repl_cl_br_url} {title_quotes})"
+            else:
+                return b_txt
+        return with_title    
+    return with_url
+
+#Upper and lower bound setting
+#If you have a value and an upper bound, using min(value, upper_bound) returns the value capped at the upper bound, i.e., the value will be returned as is unless it exceeds the upper bound.
+
+value: int = 50
+min(value, 100)  # returns 50
+
+value = 120
+min(value, 100)  # returns 100
+
+#The opposite works for lower bounds. Just use max instead.
+
+value: int = 50
+max(value, 0)  # returns 50
+
+value = -2
+max(value, 0)  # returns 0
+
+#This mix and max usage is so clean!
+from collections.abc import Callable
+
+ResizeFunc = Callable[[int, int], tuple[int, int]]
+SetMinSizeFunc = Callable[..., ResizeFunc]
+
+# Don't touch above this line
+
+
+def new_resizer(max_width: int, max_height: int) -> SetMinSizeFunc:
+    def inner_func(min_width:int=0, min_height:int=0):
+        if min_width > max_width or min_height > max_height:
+            raise ValueError("minimum size cannot exceed maximum size")
+        else:
+            def innermost_func(width: int, height:int):
+                width = max(min_width, min(width, max_width))
+                height = max(min_height, min(height, max_height))
+                return width, height
+            return innermost_func
+    return inner_func
+
+#Decorators
+#Decorators are a way to modify or enhance the behavior of functions or methods without changing their code. 
+# They are often used for logging, access control, memoization, and more.
+
+#These are the same:
+#With decorator
+@vowel_counter
+def process_doc(doc: str) -> None:
+    print(f"Document: {doc}")
+
+process_doc("Something wicked this way comes")
+
+#Without decorator
+def process_doc(doc: str) -> None:
+    print(f"Document: {doc}")
+
+process_doc = vowel_counter(process_doc)
+process_doc("Something wicked this way comes")
+
+#Args and Kwargs
+#In Python, *args and **kwargs allow a function to accept and deal with a variable number of arguments.
+# args collects positional arguments into a tuple
+# **kwargs collects keyword (named) arguments into a dictionary
+
+def print_arguments(*args: object, **kwargs: object) -> None:
+    print(f"Positional arguments: {args}")
+    print(f"Keyword arguments: {kwargs}")
+
+print_arguments("hello", "world", a=1, b=2)
+# Positional arguments: ('hello', 'world')
+# Keyword arguments: {'a': 1, 'b': 2}
+
+#Positional arguments are the ones you're already familiar with, where the order of the arguments matters.
+#Keyword arguments are passed in by name. Order does not matter. 
+#Any positional arguments must come before keyword arguments.
+def args_logger(*args: object, **kwargs: object) -> None:
+    args_count = 0
+    if args != None:
+        for arg in args:
+            args_count += 1
+            print(f"{args_count}. {arg}")
+    if kwargs != None:
+        sorted_keys = sorted(kwargs)
+        for item in sorted_keys:
+            print(f"* {item}: {kwargs[item]}")
+    return None
+
