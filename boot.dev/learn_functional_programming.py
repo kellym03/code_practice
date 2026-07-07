@@ -911,3 +911,32 @@ def args_logger(*args: object, **kwargs: object) -> None:
             print(f"* {item}: {kwargs[item]}")
     return None
 
+#Decorator challenge
+from collections.abc import Callable
+
+
+def markdown_to_text_decorator(func: Callable[..., str]) -> Callable[..., str]:
+    def wrapper(*args: str, **kwargs: str) -> str:
+        # 1. Convert all positional arguments
+        cleaned_args = []
+        for arg in args:
+            cleaned_args.append(convert_md_to_txt(arg))
+            
+        # 2. Convert all keyword argument values
+        cleaned_kwargs = {}
+        for key in kwargs:
+            cleaned_kwargs[key] = convert_md_to_txt(kwargs[key])
+            
+        # 3. Call the decorated function with our fresh arguments and return the result
+        return func(*cleaned_args, **cleaned_kwargs)
+        
+    return wrapper
+
+# Don't touch below this line
+
+def convert_md_to_txt(doc: str) -> str:
+    lines = doc.split("\n")
+    for i in range(len(lines)):
+        line = lines[i]
+        lines[i] = line.lstrip("# ")
+    return "\n".join(lines)
