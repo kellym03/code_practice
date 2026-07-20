@@ -974,3 +974,154 @@ factorial_r(12)  # makes 2 new recursive calls; the other 11 are cached
 # With lru_cache, the function is only called 13 times. 
 # You don't often need to compute factorials, but this example ties together how to use a decorator and memoization and recursion.
 
+#Union types
+#Union types is using the pipe (|) operator to represent or in function typing - see below:
+class Parsed:
+    def __init__(self, doc_name: str, text: str) -> None:
+        self.doc_name = doc_name
+        self.text = text
+
+
+class ParseError:
+    def __init__(self, doc_name: str, err: str) -> None:
+        self.doc_name = doc_name
+        self.err = err
+
+
+# Don't touch above this line
+
+
+def parse_document(doc_name: str, content: str) -> Parsed | ParseError:
+    if content == "":
+        error = ParseError(doc_name, "no content")
+        return error
+    if content != "":
+        parse = Parsed(doc_name, content)
+        return parse
+
+
+def display_parse_result(result: Parsed | ParseError) -> str:
+    if isinstance(result, ParseError):
+        return f"Failed {result.doc_name}: {result.err}"
+    if isinstance(result, Parsed):
+        return f"Parsed {result.doc_name}: {len(result.text)} characters"
+
+#Enums
+#So far, we've used classes to model the different cases in a sum type, and union type hints as a simpler way of describing the possible types of a value (albeit with no automatic enforcement at runtime).
+#If what you're trying to represent is a fixed set of values, you have another good option in Python's type system: enums.
+
+from enum import Enum
+
+Color = Enum("Color", ["RED", "GREEN", "BLUE"])
+print(Color.RED)   # this works, prints 'Color.RED'
+print(Color.TEAL)  # this raises an exception
+
+##Sum Types
+#Unfortunately, Python does not support sum types as well as some statically typed languages.
+#Python doesn't enforce your types before your code runs. That's why we need this line here to raise an Exception if a color is invalid:
+
+def color_to_hex(color: Color) -> str:
+    if color == Color.GREEN:
+        return "#00FF00"
+    elif color == Color.BLUE:
+        return "#0000FF"
+    elif color == Color.RED:
+        return "#FF0000"
+    # handle the case where the color is invalid
+    raise Exception("unknown color")
+
+#However, languges like Rust will fail to run compile before running if the types are not correct. This is a big advantage of statically typed languages, but Python has other advantages like being dynamically typed and interpreted.
+
+## Working with enums
+#Python has a match statement that tends to be a lot cleaner than a series of if/elif/else statements when we're working with a fixed set of possible values (like a sum type, or more specifically an enum):
+def get_hex(color: Color) -> str:
+    match color:
+        case Color.RED:
+            return "#FF0000"
+        case Color.GREEN:
+            return "#00FF00"
+        case Color.BLUE:
+            return "#0000FF"
+
+        # default case (invalid Color)
+        case _:
+            return "#FFFFFF"
+        
+#If there are two values you can use a Tuple
+class Shade(Enum):
+    LIGHT = 1
+    DARK = 2
+
+def get_hex(color: Color, shade: Shade) -> str:
+    match (color, shade):
+        case (Color.RED, Shade.LIGHT):
+            return "#FFAAAA"
+        case (Color.RED, Shade.DARK):
+            return "#AA0000"
+        case (Color.GREEN, Shade.LIGHT):
+            return "#AAFFAA"
+        case (Color.GREEN, Shade.DARK):
+            return "#00AA00"
+        case (Color.BLUE, Shade.LIGHT):
+            return "#AAAAFF"
+        case (Color.BLUE, Shade.DARK):
+            return "#0000AA"
+
+        # default case (invalid combination)
+        case _:
+            return "#FFFFFF"
+        
+#Sum Types Practice
+from enum import Enum
+from typing import Any
+
+
+class CSVExportStatus(Enum):
+    PENDING = 1
+    PROCESSING = 2
+    SUCCESS = 3
+    FAILURE = 4
+
+
+RawCSVData = list[list[object]]
+PreparedCSVData = list[list[str]]
+CSVStatusResult = tuple[str, PreparedCSVData | str]
+
+# Don't touch above this line
+
+
+def get_csv_status(status: CSVExportStatus, data: Any) -> CSVStatusResult:
+    # --- Helper Functions to Handle the Transformations ---
+    
+    def prepare_data(raw_data: RawCSVData) -> PreparedCSVData:
+        """Converts a list of lists of any objects into a list of lists of strings."""
+        # Nested maps: the outer map iterates rows, the inner map casts elements to strings
+        return list(map(lambda row: list(map(str, row)), raw_data))
+
+    def process_data(prepared_data: PreparedCSVData) -> str:
+        """Converts a prepared list of lists of strings into a single CSV string."""
+        # Combine items in each row with commas, then combine all rows with newlines
+        rows = list(map(lambda row: ",".join(row), prepared_data))
+        return "\n".join(rows)
+
+    # --- Structural Pattern Matching Router ---
+    match status:
+        case CSVExportStatus.PENDING:
+            prepared = prepare_data(data)
+            return ("Pending...", prepared)
+
+        case CSVExportStatus.PROCESSING:
+            csv_string = process_data(data)
+            return ("Processing...", csv_string)
+
+        case CSVExportStatus.SUCCESS:
+            return ("Success!", data)
+
+        case CSVExportStatus.FAILURE:
+            # Combine both steps: first prepare to strings, then convert to CSV format
+            prepared = prepare_data(data)
+            csv_string = process_data(prepared)
+            return ("Unknown error, retrying...", csv_string)
+
+        case _:
+            raise Exception("unknown export status")
