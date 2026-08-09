@@ -102,3 +102,69 @@ Port 	    No (defaults to 80 or 443)
 Path 	    No (defaults to /)
 Query 	    No
 Fragment 	No
+
+## URL PORTS
+The port in a URL is a virtual point where network connections are made. Ports are managed by a computer's operating system and are numbered from 0 to 65,535 (Though port 0 is reserved for the system API).
+
+Whenever you connect to another computer over a network, you're connecting to a specific port on that computer, which is listened to by a program on that computer. A port can only be used by one program at a time, which is why there are so many possible ports.
+
+The port component of a URL is often not visible when browsing normal sites on the internet, because 99% of the time you're using the default ports for the HTTP and HTTPS schemes: 80 and 443 respectively.
+
+## URL Paths
+
+Paths in URLs are essentially just another type of parameter that can be passed to the server when making a request. 
+
+# JSON
+## Sending JSON
+In python we use the JSON module which has two main method, json.loads() and json.dumps()
+dumps() does the opposite of loads(). It takes a python dictionary or list and serialises the object into a string which is useful we need to store it in a database. 
+
+
+import json
+
+data: dict[str, str | bool] = {"name": "waseem", "chad": True}
+json_string = json.dumps(data)
+print(json_string)  # {"name": "waseem", "chad": true}
+# only the boolean changed!
+
+
+## Parsing JSON
+### Parse
+Use only 'raise' keyword when deliberately wanting to halt a program from running.
+
+
+def parse_project(project_string: str) -> None:
+    try:
+        parsed = json.loads(project_string)
+        return print_project_obj(parsed)
+    except Exception:
+        print("invalid json string")
+
+
+## XML (Extensible Markup Language)
+XML is a markup language like HTML, but it's more generalized in that it does not use predefined tags. Just like how in a JSON object keys can be called anything, XML tags can also have any name.
+
+XML
+<root>
+  <id>1</id>
+  <genre>Action</genre>
+  <title>Iron Man</title>
+  <director>Jon Favreau</director>
+</root>
+
+JSON
+{
+  "id": "1",
+  "genre": "Action",
+  "title": "Iron Man",
+  "director": "Jon Favreau"
+}
+
+XML used to be used for the same things that today JSON is primarily used for. Configuration files, HTTP bodies, and other data-transfer can work with either JSON or XML.
+JSON is:
+
+    Lighter-weight
+    Easier to read
+    Has better support in most programming languages
+
+There are cases where XML might still be better, or maybe even necessary, but that tends to be the exception rather than the rule.
